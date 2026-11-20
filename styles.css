@@ -59,20 +59,12 @@ footer {
     margin-top: 40px;
 }
 
-.cat-photos {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    flex-wrap: wrap;
-}
-
-.cat-photos img {
-    width: 250px;
-    height: 200px;
+img {
+    width: 200px;
+    height: 180px;
     object-fit: cover;
-    border-radius: 12px;
+    border-radius: 10px;
 }
-
 .interactive, .links {
     padding: 25px;
 }
