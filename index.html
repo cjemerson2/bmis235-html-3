@@ -48,8 +48,146 @@
      This box is empty on purpose. In Part 7 you paste an interactive
      graphic BETWEEN the opening <div> and the closing </div> below.
      ===================================================================== -->
-<div class="showcase"></div>
+<div class="showcase">
+<!-- HTML: the play area where the cat names bounce, plus the box that shows the fun fact -->
+<div class="cat-stage" aria-label="Bouncing cat names. Click a name to read a fun fact."></div>
+<div class="cat-fact" aria-live="polite">Click a cat's name to learn a fun fact!</div>
 
+<!-- CSS: brand colors (#450C3F main, #D9EFBD accent), Arial font, and a layout that stays under 500px tall -->
+<style>
+  .showcase .cat-stage {
+    position: relative;
+    width: 100%;
+    height: 340px;
+    max-height: 60vh;
+    background: #450C3F;
+    border-radius: 16px;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+  }
+  .showcase .cat-name {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 0;
+    padding: 10px 18px;
+    background: #D9EFBD;
+    color: #450C3F;
+    border: 3px solid #D9EFBD;
+    border-radius: 999px;
+    font-family: Arial, sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+    will-change: transform;
+  }
+  .showcase .cat-name:hover,
+  .showcase .cat-name:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px #ffffff;
+  }
+  .showcase .cat-name.is-selected {
+    background: #450C3F;
+    color: #D9EFBD;
+  }
+  .showcase .cat-fact {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 76px;
+    margin-top: 12px;
+    padding: 14px 16px;
+    background: #D9EFBD;
+    color: #450C3F;
+    border-radius: 12px;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  @media (max-width: 480px) {
+    .showcase .cat-name { font-size: 16px; padding: 8px 14px; }
+  }
+</style>
+
+<!-- JavaScript: edit the cats list, then it makes each name bounce around and shows a fun fact on click -->
+<script>
+(function () {
+  // ✏️ EDIT ME: replace these with your cats' real names and fun facts
+  var cats = [
+    { name: "Rosemary", fact: "She is a female orange cat with orange eyes! (pretty rare!)" },
+    { name: "Sage",    fact: "She waits on the bathroom counter for us to turn the faucet on for her!." },
+    { name: "Figaro",     fact: "My sister named him Figaro because he looks really similar to the cat from Pinoccho name Figaro" }
+  ];
+
+  var stage = document.querySelector(".showcase .cat-stage");
+  var factBox = document.querySelector(".showcase .cat-fact");
+  if (!stage || !factBox) return;
+
+  var reduceMotion = window.matchMedia &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var speed = reduceMotion ? 0 : 1;
+
+  var items = cats.map(function (cat) {
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "cat-name";
+    btn.textContent = cat.name;
+    stage.appendChild(btn);
+
+    var item = {
+      el: btn,
+      cat: cat,
+      x: Math.random() * Math.max(stage.clientWidth - btn.offsetWidth, 1),
+      y: Math.random() * Math.max(stage.clientHeight - btn.offsetHeight, 1),
+      vx: (Math.random() < 0.5 ? -1 : 1) * (0.8 + Math.random() * 0.8),
+      vy: (Math.random() < 0.5 ? -1 : 1) * (0.8 + Math.random() * 0.8),
+      paused: false
+    };
+
+    btn.addEventListener("mouseenter", function () { item.paused = true; });
+    btn.addEventListener("mouseleave", function () { item.paused = false; });
+    btn.addEventListener("focus", function () { item.paused = true; });
+    btn.addEventListener("blur", function () { item.paused = false; });
+
+    btn.addEventListener("click", function () {
+      items.forEach(function (other) { other.el.classList.remove("is-selected"); });
+      btn.classList.add("is-selected");
+      factBox.innerHTML = "";
+      var strong = document.createElement("strong");
+      strong.textContent = cat.name + ": ";
+      factBox.appendChild(strong);
+      factBox.appendChild(document.createTextNode(cat.fact));
+    });
+
+    btn.style.transform = "translate(" + item.x + "px," + item.y + "px)";
+    return item;
+  });
+
+  var last = performance.now();
+  function frame(now) {
+    var step = Math.min((now - last) / 16.67, 3);
+    last = now;
+    var w = stage.clientWidth;
+    var h = stage.clientHeight;
+
+    items.forEach(function (it) {
+      if (!it.paused) {
+        var maxX = Math.max(w - it.el.offsetWidth, 0);
+        var maxY = Math.max(h - it.el.offsetHeight, 0);
+        it.x += it.vx * step * speed;
+        it.y += it.vy * step * speed;
+        if (it.x <= 0)    { it.x = 0;    it.vx =  Math.abs(it.vx); }
+        if (it.x >= maxX) { it.x = maxX; it.vx = -Math.abs(it.vx); }
+        if (it.y <= 0)    { it.y = 0;    it.vy =  Math.abs(it.vy); }
+        if (it.y >= maxY) { it.y = maxY; it.vy = -Math.abs(it.vy); }
+        it.el.style.transform = "translate(" + it.x + "px," + it.y + "px)";
+      }
+    });
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
 <section>
     <h2>Contact Me</h2>
     <p>
